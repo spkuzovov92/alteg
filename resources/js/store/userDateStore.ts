@@ -1,21 +1,25 @@
 import { defineStore } from 'pinia';
-import { Ref, ref } from 'vue';
+import { computed, Ref, ref } from 'vue';
+import dayjs from 'dayjs';
 
 export const useDateStore = defineStore('date', () => {
     const currentDate = new Date();
     const currentMonth = ref(currentDate.getMonth());
-    const currentDay: Ref<number | null> = ref(currentDate.getDate());
+    const currentDay = ref(currentDate.getDate());
     const startTIme: Ref<string | null> = ref(null);
     const dayWeekRange = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const changeCurrentMonth = (val: number) => {
         currentMonth.value = val;
-        currentDay.value = null;
+        currentDay.value = 1;
     };
-    const changeCurrentDay = (val: number | null) => {
+    const changeCurrentDay = (val: number ) => {
         currentDay.value = val;
     };
     const changeStartTime = (val: string | null) => {
         startTIme.value = val;
     };
-    return { currentMonth, currentDay, dayWeekRange, changeCurrentDay, changeCurrentMonth, startTIme, changeStartTime };
+    const getDateToRequest = computed(() =>
+        dayjs().set('month', currentMonth.value).set('date', currentDay.value).format('YYYY-MM-DD')
+    )
+    return { currentMonth, currentDay, dayWeekRange, changeCurrentDay, changeCurrentMonth, startTIme, changeStartTime, getDateToRequest };
 });

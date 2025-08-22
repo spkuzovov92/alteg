@@ -1,39 +1,45 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { computed, onMounted, watch } from 'vue';
-import { END_TIME, START_TIME, STEP_MINUTE } from '@/const/date';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { storeToRefs } from 'pinia';
 import { useDateStore } from '@/store/userDateStore';
+import { useDataStore } from '@/store/dataStore';
+
 dayjs.extend(customParseFormat);
-
-
-
-const { currentMonth, currentDay } = storeToRefs(useDateStore());
-const generateTimeSlots = (start: string, end: string, step: number) => {
-    const slots: string[] = [];
-    let time = dayjs(start, 'HH:mm');
-    const endTimeObj = dayjs(end, 'HH:mm');
-    while (time.isBefore(endTimeObj)) {
-        const from = time.format('HH:mm');
-        slots.push(`${from}`);
-        time = time.add(step, 'minute');
-    }
-
-    return slots;
-};
-watch(currentDay, (val, oldVal) => {
-    console.log(val, oldVal)
+const dataStore = useDataStore();
+const { slots, loadingSlots, activeSlot } = storeToRefs(dataStore);
+const { currentDay, getDateToRequest } = storeToRefs(useDateStore());
+watch(currentDay, () => {
+    dataStore.loadSlots(getDateToRequest.value);
+});
+watch(activeSlot, () => {
+    dataStore.loadServicesToTime()
 })
 onMounted(() => {
-
-})
-const timeSlots = computed(() => generateTimeSlots(START_TIME, END_TIME, STEP_MINUTE));
+    if (!slots.value.length) dataStore.loadSlots(getDateToRequest.value);
+});
 </script>
 
 <template>
     <div>
-        <v-chip v-for="time in timeSlots" :key="time" variant="outlined" color="primary" class="mr-2 mb-2">{{ time }}</v-chip>
+        <div class="text-center" v-if="loadingSlots">
+            <v-progress-circular  indeterminate color="primary" />
+        </div>
+        <v-chip
+            size="large"
+            @click="dataStore.changeActiveSlot(time)"
+            v-else
+            v-for="time in slots"
+            :key="time.id"
+            :variant="activeSlot && activeSlot.id === time.id ? 'elevated' : 'outlined'"
+            color="primary"
+            class="mr-2 mb-2"
+            >{{ time.attributes.time }}
+        </v-chip>
+        <div class="text-center" v-if="activeSlot">
+            <v-btn  @click="dataStore.changeActiveStep(2)" color="primary">Продолжить</v-btn>
+        </div>
     </div>
 </template>
 

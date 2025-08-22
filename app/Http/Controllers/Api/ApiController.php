@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ApiController extends Controller
 {
@@ -41,9 +42,7 @@ class ApiController extends Controller
             return response()->json($response->json() ?? $response->body());
         }
         catch (\Exception $e) {
-             return response()->json([
-                    'error' => $e->getMessage(),
-                ], $e->getCode() > 0 ? $e->getCode() : 500);
+             return response()->json($e->getMessage(), $e->getCode() > 0 ? $e->getCode() : 500);
         }
     }
 }
