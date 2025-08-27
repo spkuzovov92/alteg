@@ -90,7 +90,7 @@ onMounted(() => {
     }
 });
 watch(activeGroup, () => {
-    Object.assign(activeServices, []);
+    activeServices.splice(0, activeServices.length)
     const service = mainData.value.services.services.find((item: any) => item.category_id === activeGroup.value && item.title.includes('Подготовка'));
     if (service) activeServices.push(service.id);
 });

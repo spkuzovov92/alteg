@@ -44,8 +44,8 @@ export const useDataStore = defineStore('data', () => {
     const items: Reactive<Array<{ id: number; name: string }>> = reactive([]);
 
     const loadSlots = async (date: string) => {
+        console.log(222)
         loadingSlots.value = true;
-        Object.assign(slots, []);
         try {
             const payload = {
                 context: {
@@ -67,6 +67,7 @@ export const useDataStore = defineStore('data', () => {
             };
             const resp = await sendRequest({ url: 'booking/search/timeslots', method: 'post', data: payload });
             if (resp.data) {
+                slots.splice(0, slots.length)
                 resp.data.data.forEach((item: any) => {
                     slots.push(item);
                 });
@@ -81,7 +82,7 @@ export const useDataStore = defineStore('data', () => {
     const loadServicesToTime = async (datetime?: string) => {
         if (!activeSlot.value) return;
         loadingServices.value = true;
-        Object.assign(servicesToTime, []);
+        servicesToTime.splice(0, servicesToTime.length)
 
         try {
             const payload = {

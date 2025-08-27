@@ -62,7 +62,7 @@ const sendForm = async () => {
     for (const item of storeData.userServices) {
         //@ts-ignore
         payload.appointments.push({
-            datetime: dayjs(item.datetime).format('YYYY-MM-DDTHH:mm:ss'),
+            datetime: item.datetime,
             staff_id: item.staff_id,
             services: item.services.map((val) => val.id),
             id: index

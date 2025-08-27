@@ -32,7 +32,7 @@ class ApiController extends Controller
                 default  => $http->send(strtoupper($method), $url, ['form_params' => $data]),
             };
 
-            if ($response->status() !== 200) {
+            if ($response->status() >= 299) {
                 throw new HttpException(
                     $response->status(),
                     $response->body() ?: 'Ошибка запроса'
