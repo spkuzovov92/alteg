@@ -92,6 +92,7 @@ onMounted(() => {
 watch(activeGroup, () => {
     activeServices.splice(0, activeServices.length);
     const service = mainData.value.services.services.find((item: any) => item.category_id === activeGroup.value && item.title.includes('Подготовка'));
+    console.log(service)
     if (service) activeServices.push(service.id);
 });
 const loadTimeSlots = async () => {
