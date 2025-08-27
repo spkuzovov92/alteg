@@ -23,9 +23,15 @@ type servicesToTimeType = {
     id: string;
     type: string;
 };
+type userServiceType = {
+    datetime: string;
+    staff_id: number | null;
+    services: Array<{ id: number, duration: number }>;
+    category_id: number;
+};
 
 export const useDataStore = defineStore('data', () => {
-    const userServices = reactive([])
+    const userServices: Array<userServiceType> = reactive([])
     const loading = ref(false);
     const slots: Reactive<Array<slotType>> = reactive([]);
     const activeSlot: Ref<slotType | null> = ref(null);
@@ -72,7 +78,7 @@ export const useDataStore = defineStore('data', () => {
         }
     };
 
-    const loadServicesToTime = async () => {
+    const loadServicesToTime = async (datetime?: string) => {
         if (!activeSlot.value) return;
         loadingServices.value = true;
         Object.assign(servicesToTime, []);
@@ -83,7 +89,7 @@ export const useDataStore = defineStore('data', () => {
                     location_id: Number(companyId),
                 },
                 filter: {
-                    datetime: activeSlot.value.attributes.datetime,
+                    datetime: datetime || activeSlot.value.attributes.datetime,
                     records: [
                         {
                             attendance_service_items: [],
@@ -127,6 +133,12 @@ export const useDataStore = defineStore('data', () => {
     const changeActiveStep = (val: number) => {
         activeStep.value = val
     }
+    const changeUserService = (data: any) => {
+        Object.assign(userServices, data);
+    }
+    const changeStaffId = (index: number, id: number) => {
+        userServices[index].staff_id = id
+    }
 
     return {
         loadSlots,
@@ -143,6 +155,8 @@ export const useDataStore = defineStore('data', () => {
         loadMainData,
         changeActiveStep,
         userServices,
-        servicesToTime
+        servicesToTime,
+        changeUserService,
+        changeStaffId
     };
 });

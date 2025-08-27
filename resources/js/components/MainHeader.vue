@@ -12,7 +12,7 @@ const getLogo = computed(() => mainData.value.logo);
     <div>
         <v-row class="align-center">
             <v-col  cols="1">
-                <v-btn v-if="activeStep !== 1" @click="useDataStore().changeActiveStep(1)" :icon="'mdi-chevron-left'"/>
+                <v-btn v-if="activeStep !== 1" @click="useDataStore().changeActiveStep(activeStep - 1)" :icon="'mdi-chevron-left'"/>
             </v-col>
             <v-col cols="6" md="4">
                 <v-img  :src="getLogo" :width="64" />

@@ -14,13 +14,15 @@ import { createPinia } from 'pinia';
 const pinia = createPinia()
 const vuetify = createVuetify();
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+import VuetifyNotifier from "vuetify-notifier";
+
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
-        app.use(plugin).use(ZiggyVue).use(pinia).use(vuetify).mount(el);
+        app.use(plugin).use(ZiggyVue).use(pinia).use(vuetify).use(VuetifyNotifier).mount(el);
     },
     progress: {
         color: '#4B5563',
