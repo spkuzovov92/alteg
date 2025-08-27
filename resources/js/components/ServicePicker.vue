@@ -85,12 +85,12 @@ onMounted(() => {
             mainData.value.services.services.find((item: any) => item.id === getServicesByUser.value?.services[0]).category_id || null;
         Object.assign(activeServices, getServicesByUser.value.services);
     } else if (getGroups.value.length === 1) activeGroup.value = getGroups.value[0].id;
-    if(dayjs(activeSlot.value?.attributes.datetime).utc().valueOf() !== dayjs(getLastData.value).utc().valueOf()) {
-        dataStore.loadServicesToTime()
+    if (dayjs(activeSlot.value?.attributes.datetime).utc().valueOf() !== dayjs(getLastData.value).utc().valueOf()) {
+        dataStore.loadServicesToTime();
     }
 });
 watch(activeGroup, () => {
-    activeServices.splice(0, activeServices.length)
+    activeServices.splice(0, activeServices.length);
     const service = mainData.value.services.services.find((item: any) => item.category_id === activeGroup.value && item.title.includes('Подготовка'));
     if (service) activeServices.push(service.id);
 });
@@ -114,7 +114,9 @@ const loadTimeSlots = async () => {
         const resp = await sendRequest({ url: 'booking/search/timeslots', method: 'post', data: payload });
         if (resp.data.data) {
             const findDate = resp.data.data.find(
-                (item: any) => getLastData.value === item.attributes.datetime || dayjs(item.attributes.datetime).utc().valueOf() === dayjs(getLastData.value).utc().valueOf(),
+                (item: any) =>
+                    getLastData.value === item.attributes.datetime ||
+                    dayjs(item.attributes.datetime).utc().valueOf() === dayjs(getLastData.value).utc().valueOf(),
             );
             if (!findDate) {
                 throw new Error('Нельзя добавить выбранную услугу');
@@ -155,55 +157,60 @@ const addServicesToUser = () => {
 </script>
 
 <template>
-    <div class="pt-4">
-        <div>
-            <h5 class="text-h5 pb-4">Выберите группу</h5>
+    <template v-if="getGroups.length">
+        <div class="pt-4">
             <div>
-                <v-chip
-                    :variant="activeGroup && activeGroup === category.id ? 'elevated' : 'outlined'"
-                    color="primary"
-                    class="mr-2 mb-2"
-                    size="large"
-                    @click="activeGroup = category.id"
-                    v-for="category in getGroups"
-                    :key="category.id"
-                    >{{ category.title }}
-                </v-chip>
+                <h5 class="text-h5 pb-4">Выберите группу</h5>
+                <div>
+                    <v-chip
+                        :variant="activeGroup && activeGroup === category.id ? 'elevated' : 'outlined'"
+                        color="primary"
+                        class="mr-2 mb-2"
+                        size="large"
+                        @click="activeGroup = category.id"
+                        v-for="category in getGroups"
+                        :key="category.id"
+                        >{{ category.title }}
+                    </v-chip>
+                </div>
+            </div>
+            <div class="pt-2" v-if="activeGroup">
+                <h5 class="text-h5 pb-4">Выберите услуги</h5>
+                <v-card
+                    @click="changeActiveServices(service.id)"
+                    class="mb-4"
+                    v-for="service in getServices"
+                    :key="service.id"
+                    :disabled="disabledService(service.id)"
+                    :title="service.title"
+                >
+                    <template #append>
+                        <v-checkbox v-model="activeServices" :value="service.id" multiple :disabled="disabledService(service.id)" />
+                    </template>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="6" class="text-h6"> {{ service.price_max }} ฿</v-col>
+                            <v-col cols="6" class="text-h6 text-right">{{ getDuration(service.id) }} минут</v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
             </div>
         </div>
-        <div class="pt-2" v-if="activeGroup">
-            <h5 class="text-h5 pb-4">Выберите услуги</h5>
-            <v-card
-                @click="changeActiveServices(service.id)"
-                class="mb-4"
-                v-for="service in getServices"
-                :key="service.id"
-                :disabled="disabledService(service.id)"
-                :title="service.title"
-            >
-                <template #append>
-                    <v-checkbox v-model="activeServices" :value="service.id" multiple :disabled="disabledService(service.id)" />
-                </template>
-                <v-card-text>
-                    <v-row>
-                        <v-col cols="6" class="text-h6"> {{ service.price_max }} ฿</v-col>
-                        <v-col cols="6" class="text-h6 text-right">{{ getDuration(service.id) }} минут</v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
-        </div>
-    </div>
-    <div class="pt-4">
-        <v-row>
-            <v-col cols="3" class="text-h6">Итого:</v-col>
-            <v-col cols="3" class="text-h6"> {{ getDataToFooter.price }} ฿</v-col>
-            <v-col cols="3" class="text-h6">{{ getDataToFooter.duration }} минут</v-col>
-            <v-col cols="3">
-                <v-btn color="primary" v-if="getDataToFooter.price > 0" @click="addServicesToUser">Выбрать специалиста </v-btn>
-                <v-btn color="primary" v-if="filterSelectedServices.length" @click="dataStore.changeActiveStep(4)"> Оформить заказ </v-btn>
-            </v-col>
-        </v-row>
-    </div>
+        <div class="pt-4"></div>
+    </template>
+    <template v-else>
+        <h4 class="text-h4">Больше нет доступных услуг - перейдите к оформлению заказа</h4>
+    </template>
+
+    <v-row>
+        <v-col cols="3" class="text-h6">Итого:</v-col>
+        <v-col cols="3" class="text-h6"> {{ getDataToFooter.price }} ฿</v-col>
+        <v-col cols="3" class="text-h6">{{ getDataToFooter.duration }} минут</v-col>
+        <v-col cols="3">
+            <v-btn color="primary" v-if="getDataToFooter.price > 0" @click="addServicesToUser">Выбрать специалиста </v-btn>
+            <v-btn color="primary" v-if="filterSelectedServices.length" @click="dataStore.changeActiveStep(4)"> Оформить заказ </v-btn>
+        </v-col>
+    </v-row>
 </template>
 
 <style scoped></style>

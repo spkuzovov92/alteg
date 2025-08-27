@@ -18,6 +18,7 @@ watch(activeSlot, () => {
 })
 onMounted(() => {
     if (!slots.value.length) dataStore.loadSlots(getDateToRequest.value);
+    dataStore.changeUserService([])
 });
 </script>
 
