@@ -1,13 +1,13 @@
 <script setup lang="ts">
     import { useDataStore } from '@/store/dataStore';
-    import { computed, onMounted, reactive, ref, Ref, toRefs } from 'vue';
+    import { computed, onMounted, Reactive, reactive, ref, Ref, toRefs } from 'vue';
     import { sendRequest } from '@/plugins/axios';
 
     const dataStore = useDataStore()
     const {userServices} = toRefs(dataStore)
     const getServicesByUser = computed(() =>  userServices.value.find(item => item.staff_id === null))
     const getStaffs = computed(() => dataStore.mainData.staff)
-    const freeSpecialists = reactive([])
+    const freeSpecialists: Reactive<Array<any>> = reactive([])
     const activeSpecialist: Ref<number | null> = ref(null)
     const loadStaffs = async () => {
         if(!getServicesByUser.value) return
@@ -50,6 +50,9 @@
         }
         dataStore.changeActiveStep(4)
     }
+    const isDisabled = (id: number) => {
+        return !(freeSpecialists.find((item: any) => Number(item.id) === id)?.attributes.is_bookable)
+    }
     onMounted(() => loadStaffs())
 </script>
 
@@ -57,7 +60,7 @@
     <div class="pt-4">
         <div>
             <h5 class="text-h5 pb-4">Выберите специалиста</h5>
-            <v-card v-for="staff in getFreeSpecialist" :key=staff.id class="mb-4" @click="activeSpecialist = staff.id">
+            <v-card v-for="staff in getFreeSpecialist" :key=staff.id class="mb-4" @click="activeSpecialist = staff.id" :disabled="isDisabled(staff.id)">
                 <v-row class="px-4 pt-2">
                     <v-col cols="11">
                         <div class="d-flex">
