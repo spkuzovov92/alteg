@@ -26,7 +26,7 @@ const getLastData = computed(() => {
             const duration = val.duration;
             addMinute += duration;
         });
-        return dayjs(lastUserService.datetime).add(addMinute, 'minutes').format();
+        return dayjs(dayjs(lastUserService.datetime).add(addMinute, 'minutes').toISOString()).tz('Asia/Bangkok').format();
     } else return activeSlot.value?.attributes.datetime;
 });
 const getDataToFooter = computed(() => {
@@ -86,7 +86,8 @@ onMounted(() => {
         Object.assign(activeServices, getServicesByUser.value.services);
     } else if (getGroups.value.length === 1) activeGroup.value = getGroups.value[0].id;
     if (dayjs(activeSlot.value?.attributes.datetime).utc().valueOf() !== dayjs(getLastData.value).utc().valueOf()) {
-        dataStore.loadServicesToTime();
+
+        dataStore.loadServicesToTime(getLastData.value);
     }
 });
 watch(activeGroup, () => {
